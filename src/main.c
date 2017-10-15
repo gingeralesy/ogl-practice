@@ -41,9 +41,10 @@ GLuint default_shader_program()
 int main(int argc, char *argv[])
 {
   GLFWwindow *window = NULL;
-  GLsizei element_count = 0;
-  GLuint element_buffer = 0, vertex_buffer = 0, vertex_array = 0,
-    shader_program = 0;
+  GLuint shader_program = 0;
+  ShapeData triangle = {0};
+  ShapeData square = {0};
+  ShapeData *shape = NULL;
   if (!opengl_setup(&window))
     return EXIT_FAILURE;
   log_info("OpenGL and GLFW initialised");
@@ -56,32 +57,41 @@ int main(int argc, char *argv[])
   }
   log_info("Shader program created");
 
-  glGenVertexArrays(1, &vertex_array);
-  glBindVertexArray(vertex_array);
-
-  element_count =
-    create_square(&element_buffer, &vertex_buffer, GL_STATIC_DRAW);
-  glBindVertexArray(0);
-  if (element_count <= 0)
+  if (!create_square(&square, GL_STATIC_DRAW))
   {
-    glDeleteVertexArrays(1, &vertex_array);
+    shape_delete(&square);
     glfwTerminate();
     return EXIT_FAILURE;
   }
+  if (!create_triangle(&triangle, GL_STATIC_DRAW))
+  {
+    shape_delete(&triangle);
+    shape_delete(&square);
+    glfwTerminate();
+    return EXIT_FAILURE;
+  }
+
   log_info("Shape data retrieved");
 
+  shape = &triangle;
   while (!glfwWindowShouldClose(window))
   {
     handle_input(window);
     glClearColor(.3f, .3f, .2f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // TODO: Move to input handler
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+      shape = &triangle;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+      shape = &square;
+
     glUseProgram(shader_program);
-    glBindVertexArray(vertex_array);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
+    glBindVertexArray(shape->vertex_array);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shape->element_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, shape->vertex_buffer);
     
-    glDrawElements(GL_TRIANGLES, element_count, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, shape->index_count, GL_UNSIGNED_INT, 0);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -90,11 +100,12 @@ int main(int argc, char *argv[])
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+  log_info("Exitting..");
 
-  glDeleteVertexArrays(1, &vertex_array);
-  glDeleteBuffers(1, &vertex_buffer);
-  glDeleteBuffers(1, &element_buffer);
+  shape_delete(&triangle);
+  shape_delete(&square);
   glfwTerminate();
+  log_info("Clean up complete!");
 
   return EXIT_SUCCESS;
 }
