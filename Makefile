@@ -14,6 +14,7 @@ LDFLAGS = -L$(LDIR) $(shell pkg-config --libs glfw3 glm) -lopengl32 -lgdi32
 
 MKDIR_P = mkdir -p
 RM = rm -f
+RMDIR = rmdir
 
 SOURCES  := $(wildcard $(SDIR)/*.c)
 INCLUDES := $(wildcard $(IDIR)/*.h)
@@ -45,4 +46,6 @@ clean:
 .PHONY: remove
 remove: clean
 	@$(RM) $(OUTFILE)
+	@$(RMDIR) $(ODIR)
+	@$(RMDIR) $(BDIR)
 	@echo " *** Executable removed!"
