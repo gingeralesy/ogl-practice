@@ -11,10 +11,10 @@ typedef enum log_level_e
   LOGGER_ERROR
 } LogLevel;
 
-void print_log(int, LogLevel, const char *);
-void log_debug(int, const char *);
-void log_info(int, const char *);
-void log_warning(int, const char *);
-void log_error(int, const char *);
+void log_debug(const char *);
+void log_info(const char *);
+void log_warning(const char *);
+void log_error(const char *);
+void log_glfw_error(int, const char *);
 
 #endif // LOGGER_H

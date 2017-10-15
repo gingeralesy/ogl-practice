@@ -4,6 +4,6 @@
 #include <common.h>
 
 void handle_input(GLFWwindow *);
-void handle_resize(GLFWwindow *, int, int);
+void handle_resize(GLFWwindow *, GLint, GLint);
 
 #endif // HANDLERS_H

@@ -6,6 +6,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif // _WIN32
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 

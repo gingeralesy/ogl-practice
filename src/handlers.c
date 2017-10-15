@@ -6,7 +6,7 @@ void handle_input(GLFWwindow *window)
     glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-void handle_resize(GLFWwindow *window, int width, int height)
+void handle_resize(GLFWwindow *window, GLint width, GLint height)
 {
   glViewport(0, 0, width, height);
 }
