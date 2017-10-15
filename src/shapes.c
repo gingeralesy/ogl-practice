@@ -1,6 +1,7 @@
 #include "shapes.h"
 
 #include <logger.h>
+#include <opengl.h>
 
 // Private constants
 
@@ -12,9 +13,48 @@ static const char *SHAPE_TYPE_STR[] =
 
 // Private headers
 
+static GLuint shader_program(Shape);
 static GLboolean shape_create(Shape, ShapeData *, GLenum);
 
 // Private functions
+
+GLuint shader_program(Shape shape)
+{
+  GLuint vertex_shader = 0;
+  GLuint fragment_shader = 0;
+  GLuint shader_program = 0;
+  
+  vertex_shader = opengl_vertex_shader(SHADER_DEFAULT);
+  if (!vertex_shader)
+    return 0;
+
+  switch (shape)
+  {
+  case SHAPE_TRIANGLE:
+    fragment_shader = opengl_fragment_shader(SHADER_DEFAULT);
+    break;
+  case SHAPE_SQUARE:
+    fragment_shader = opengl_fragment_shader(SHADER_SECOND);
+    break;
+  default:
+    log_error("Invalid shape");
+    break;
+  }
+
+  if (!fragment_shader)
+  {
+    glDeleteShader(vertex_shader);
+    return 0;
+  }
+  
+  shader_program = opengl_program(vertex_shader, fragment_shader);
+  glDeleteShader(vertex_shader);
+  glDeleteShader(fragment_shader);
+  
+  if (!shader_program)
+    return 0;
+  return shader_program;
+}
 
 GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
 {
@@ -28,6 +68,8 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
   }
 
   data->type = shape;
+  data->shader_program = shader_program(shape);
+  
   switch(shape)
   {
   case SHAPE_TRIANGLE:
@@ -167,6 +209,18 @@ char * shape_data_str(ShapeData *data)
   free(tmp);
   
   return str;
+}
+
+void shape_draw(ShapeData *data)
+{
+  glUseProgram(data->shader_program);
+  glBindVertexArray(data->vertex_array);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->element_buffer);
+  
+  glDrawElements(GL_TRIANGLES, data->index_count, GL_UNSIGNED_INT, 0);
+  
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 }
 
 void shape_delete(ShapeData *data)

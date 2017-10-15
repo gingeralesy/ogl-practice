@@ -12,6 +12,7 @@ typedef enum shapes_e
 typedef struct shape_data_t
 {
   Shape type;
+  GLuint shader_program;
   GLuint vertex_array;
   GLuint element_buffer;
   GLuint vertex_buffer;
@@ -58,7 +59,8 @@ static const GLuint SHAPE_SQUARE_INDEX_SIZE = (6 * sizeof(GLuint));
 GLboolean create_triangle(ShapeData *, GLenum);
 GLboolean create_square(ShapeData *, GLenum);
 
-void shape_delete(ShapeData *);
 char * shape_data_str(ShapeData *);
+void shape_draw(ShapeData *);
+void shape_delete(ShapeData *);
 
 #endif // SHAPES_H

@@ -30,6 +30,12 @@ GLuint opengl_shader(Shader shader, GLenum shader_type)
     else
       glShaderSource(_shader, 1, &FRAGMENT_SHADER_DEFAULT, NULL);
     break;
+  case SHADER_SECOND:
+    if (shader_type == GL_VERTEX_SHADER)
+      glShaderSource(_shader, 1, &VERTEX_SHADER_DEFAULT, NULL);
+    else
+      glShaderSource(_shader, 1, &FRAGMENT_SHADER_SECOND, NULL);
+    break;
   default:
     glDeleteShader(_shader);
     log_error("Invalid shader");

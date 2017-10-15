@@ -5,7 +5,8 @@
 
 typedef enum shader_e
 {
-  SHADER_DEFAULT = 0
+  SHADER_DEFAULT = 0,
+  SHADER_SECOND
 } Shader;
 
 GLboolean opengl_setup(GLFWwindow **);

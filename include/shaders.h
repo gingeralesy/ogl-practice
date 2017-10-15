@@ -19,4 +19,13 @@ static const char *FRAGMENT_SHADER_DEFAULT =
   "  FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
   "}\n\0";
 
+static const char *FRAGMENT_SHADER_SECOND =
+  "#version 330 core\n"
+  "out vec4 FragColor;\n"
+  "\n"
+  "void main()\n"
+  "{\n"
+  "  FragColor = vec4(0.7f, 0.3f, 0.2f, 1.0f);\n"
+  "}\n\0";
+
 #endif // SHADERS_H
