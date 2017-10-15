@@ -58,15 +58,14 @@ int main(int argc, char *argv[])
   glBindVertexArray(vertex_array);
 
   vertex_buffer = create_triangle(GL_STATIC_DRAW);
+  glBindVertexArray(0);
   if (!vertex_buffer)
   {
-    glBindVertexArray(0);
     glDeleteVertexArrays(1, &vertex_array);
     glfwTerminate();
     return EXIT_FAILURE;
   }
   log_info("Triangle data retrieved");
-  glBindVertexArray(0);
 
   while (!glfwWindowShouldClose(window))
   {
