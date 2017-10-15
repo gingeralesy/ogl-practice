@@ -87,7 +87,6 @@ GLboolean opengl_setup(GLFWwindow **window)
   }
 
   glViewport(0, 0, 800, 600);
-  glClearColor(.3f, .3f, .2f, 1.f);
   
   glfwSetFramebufferSizeCallback(_window, handle_resize);
   glfwSetErrorCallback((GLFWerrorfun)log_glfw_error);
@@ -107,8 +106,7 @@ GLuint opengl_vertex_shader(Shader shader)
   return opengl_shader(shader, GL_VERTEX_SHADER);
 }
 
-GLuint opengl_program(GLuint vertex_shader,
-                            GLuint fragment_shader)
+GLuint opengl_program(GLuint vertex_shader, GLuint fragment_shader)
 {
   GLint success = 0;
   GLuint program = 0;

@@ -8,7 +8,7 @@ static const char *VERTEX_SHADER_DEFAULT =
   "void main()\n"
   "{\n"
   "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
-  "}\n";
+  "}\n\0";
 
 static const char *FRAGMENT_SHADER_DEFAULT =
   "#version 330 core\n"
@@ -17,6 +17,6 @@ static const char *FRAGMENT_SHADER_DEFAULT =
   "void main()\n"
   "{\n"
   "  FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-  "}\n";
+  "}\n\0";
 
 #endif // SHADERS_H

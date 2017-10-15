@@ -46,17 +46,6 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   log_info("OpenGL and GLFW initialised");
 
-  glGenVertexArrays(1, &vertex_array);
-  glBindVertexArray(vertex_array);
-    
-  vertex_buffer = create_triangle(GL_STATIC_DRAW);
-  if (!vertex_buffer)
-  {
-    glfwTerminate();
-    return EXIT_FAILURE;
-  }
-  log_info("Triangle data retrieved");
-  
   shader_program = default_shader_program();
   if (!shader_program)
   {
@@ -65,14 +54,29 @@ int main(int argc, char *argv[])
   }
   log_info("Shader program created");
 
+  glGenVertexArrays(1, &vertex_array);
+  glBindVertexArray(vertex_array);
+
+  vertex_buffer = create_triangle(GL_STATIC_DRAW);
+  if (!vertex_buffer)
+  {
+    glfwTerminate();
+    return EXIT_FAILURE;
+  }
+  log_info("Triangle data retrieved");
+
+  glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);  
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), NULL);
   glEnableVertexAttribArray(0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
-
   log_info("Vertex attribute pointers set");
+
   while (!glfwWindowShouldClose(window))
   {
     handle_input(window);
+    glClearColor(.3f, .3f, .2f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(shader_program);
@@ -83,7 +87,10 @@ int main(int argc, char *argv[])
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
-  
+
+  glDeleteVertexArrays(1, &vertex_array);
+  glDeleteBuffers(1, &vertex_buffer);
   glfwTerminate();
+
   return EXIT_SUCCESS;
 }
