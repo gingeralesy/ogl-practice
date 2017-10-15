@@ -89,11 +89,9 @@ int main(int argc, char *argv[])
     glUseProgram(shader_program);
     glBindVertexArray(shape->vertex_array);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shape->element_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, shape->vertex_buffer);
     
     glDrawElements(GL_TRIANGLES, shape->index_count, GL_UNSIGNED_INT, 0);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
