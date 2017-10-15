@@ -41,7 +41,9 @@ GLuint default_shader_program()
 int main(int argc, char *argv[])
 {
   GLFWwindow *window = NULL;
-  GLuint vertex_buffer = 0, vertex_array = 0, shader_program = 0;
+  GLsizei element_count = 0;
+  GLuint element_buffer = 0, vertex_buffer = 0, vertex_array = 0,
+    shader_program = 0;
   if (!opengl_setup(&window))
     return EXIT_FAILURE;
   log_info("OpenGL and GLFW initialised");
@@ -57,15 +59,16 @@ int main(int argc, char *argv[])
   glGenVertexArrays(1, &vertex_array);
   glBindVertexArray(vertex_array);
 
-  vertex_buffer = create_triangle(GL_STATIC_DRAW);
+  element_count =
+    create_square(&element_buffer, &vertex_buffer, GL_STATIC_DRAW);
   glBindVertexArray(0);
-  if (!vertex_buffer)
+  if (element_count <= 0)
   {
     glDeleteVertexArrays(1, &vertex_array);
     glfwTerminate();
     return EXIT_FAILURE;
   }
-  log_info("Triangle data retrieved");
+  log_info("Shape data retrieved");
 
   while (!glfwWindowShouldClose(window))
   {
@@ -75,7 +78,13 @@ int main(int argc, char *argv[])
 
     glUseProgram(shader_program);
     glBindVertexArray(vertex_array);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
+    
+    glDrawElements(GL_TRIANGLES, element_count, GL_UNSIGNED_INT, 0);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
     glfwSwapBuffers(window);
@@ -84,6 +93,7 @@ int main(int argc, char *argv[])
 
   glDeleteVertexArrays(1, &vertex_array);
   glDeleteBuffers(1, &vertex_buffer);
+  glDeleteBuffers(1, &element_buffer);
   glfwTerminate();
 
   return EXIT_SUCCESS;
