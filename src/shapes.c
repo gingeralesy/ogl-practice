@@ -25,6 +25,10 @@ GLuint shape_create(Shape shape, GLenum data_usage)
     log_error("Invalid data usage");
     return 0;
   }
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), NULL);
+  glEnableVertexAttribArray(0);
+  
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   return vertex_buffer;

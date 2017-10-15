@@ -60,18 +60,13 @@ int main(int argc, char *argv[])
   vertex_buffer = create_triangle(GL_STATIC_DRAW);
   if (!vertex_buffer)
   {
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &vertex_array);
     glfwTerminate();
     return EXIT_FAILURE;
   }
   log_info("Triangle data retrieved");
-
-  glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);  
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), NULL);
-  glEnableVertexAttribArray(0);
-  
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
-  log_info("Vertex attribute pointers set");
 
   while (!glfwWindowShouldClose(window))
   {
