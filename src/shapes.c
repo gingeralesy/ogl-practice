@@ -74,10 +74,10 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
     data->vertex_shader = SHADER_DEFAULT_VERTEX;
     data->fragment_shader = SHADER_DEFAULT_FRAGMENT;
 
-    data->vertex_count = SHAPE_TRIANGLE_COUNT;
-    data->vertices_size = SHAPE_TRIANGLE_SIZE;
-    data->index_count = SHAPE_TRIANGLE_INDEX_COUNT;
-    data->indices_size = SHAPE_TRIANGLE_INDEX_SIZE;
+    data->vertices_size = sizeof(SHAPE_TRIANGLE_ARR);
+    data->vertex_count = data->vertices_size / sizeof(SHAPE_TRIANGLE_ARR[0]);
+    data->indices_size = sizeof(SHAPE_TRIANGLE_INDICES);
+    data->index_count = data->indices_size / sizeof(SHAPE_TRIANGLE_INDICES[0]);
     data->vertex_shader = SHADER_DEFAULT_VERTEX;
 
     vertices = SHAPE_TRIANGLE_ARR;
@@ -87,10 +87,10 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
     data->vertex_shader = SHADER_DEFAULT_VERTEX;
     data->fragment_shader = SHADER_DEFAULT_FRAGMENT;
 
-    data->vertex_count = SHAPE_SQUARE_COUNT;
-    data->vertices_size = SHAPE_SQUARE_SIZE;
-    data->index_count = SHAPE_SQUARE_INDEX_COUNT;
-    data->indices_size = SHAPE_SQUARE_INDEX_SIZE;
+    data->vertices_size = sizeof(SHAPE_SQUARE_ARR);
+    data->vertex_count = data->vertices_size / sizeof(SHAPE_SQUARE_ARR[0]);
+    data->indices_size = sizeof(SHAPE_SQUARE_INDICES);
+    data->index_count = data->indices_size / sizeof(SHAPE_SQUARE_INDICES[0]);
 
     vertices = SHAPE_SQUARE_ARR;
     indices = SHAPE_SQUARE_INDICES;
