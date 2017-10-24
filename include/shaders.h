@@ -1,31 +1,18 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-static const char *VERTEX_SHADER_DEFAULT =
-  "#version 330 core\n"
-  "layout (location = 0) in vec3 aPos;\n"
-  "\n"
-  "void main()\n"
-  "{\n"
-  "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
-  "}\n\0";
+#include <common.h>
 
-static const char *FRAGMENT_SHADER_DEFAULT =
-  "#version 330 core\n"
-  "out vec4 FragColor;\n"
-  "\n"
-  "void main()\n"
-  "{\n"
-  "  FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-  "}\n\0";
+typedef enum shader_e
+{
+  SHADER_DEFAULT_VERTEX = 0,
+  SHADER_DEFAULT_FRAGMENT,
+  SHADER_COUNT
+} Shader;
 
-static const char *FRAGMENT_SHADER_SECOND =
-  "#version 330 core\n"
-  "out vec4 FragColor;\n"
-  "\n"
-  "void main()\n"
-  "{\n"
-  "  FragColor = vec4(0.7f, 0.3f, 0.2f, 1.0f);\n"
-  "}\n\0";
+const char * shader_load(Shader);
+void shader_prepare_attributes(Shader);
+void shader_unload(Shader);
+void shader_unload_all(void);
 
 #endif // SHADERS_H

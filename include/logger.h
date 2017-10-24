@@ -2,6 +2,7 @@
 #define LOGGER_H
 
 #include <common.h>
+#include <stdarg.h>
 
 typedef enum log_level_e
 {
@@ -17,10 +18,10 @@ void set_log_level(LogLevel);
 const char *log_level_str(LogLevel);
 const char *log_level_str_full(LogLevel);
 
-void log_debug(const char *);
-void log_info(const char *);
-void log_warning(const char *);
-void log_error(const char *);
+void log_debug(const char *, ...);
+void log_info(const char *, ...);
+void log_warning(const char *, ...);
+void log_error(const char *, ...);
 void log_glfw_error(int, const char *);
 
 #endif // LOGGER_H

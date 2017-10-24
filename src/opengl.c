@@ -6,56 +6,18 @@
 
 // Private headers
 
-static GLuint opengl_shader(Shader, GLenum);
+static int opengl_info(char *);
 
 // Private functions
 
-GLuint opengl_shader(Shader shader, GLenum shader_type)
+int opengl_info(char *buffer)
 {
-  GLint success = 0;
-  GLuint _shader = 0;
-
-  _shader = glCreateShader(shader_type);
-  if (glGetError() == GL_INVALID_ENUM)
-  {
-    log_error("Invalid shader type");
-    return 0;
-  }
-
-  switch (shader)
-  {
-  case SHADER_DEFAULT:
-    if (shader_type == GL_VERTEX_SHADER)
-      glShaderSource(_shader, 1, &VERTEX_SHADER_DEFAULT, NULL);
-    else
-      glShaderSource(_shader, 1, &FRAGMENT_SHADER_DEFAULT, NULL);
-    break;
-  case SHADER_SECOND:
-    if (shader_type == GL_VERTEX_SHADER)
-      glShaderSource(_shader, 1, &VERTEX_SHADER_DEFAULT, NULL);
-    else
-      glShaderSource(_shader, 1, &FRAGMENT_SHADER_SECOND, NULL);
-    break;
-  default:
-    glDeleteShader(_shader);
-    log_error("Invalid shader");
-    return 0;
-  }
-  glCompileShader(_shader);
-
-  glGetShaderiv(_shader, GL_COMPILE_STATUS, &success);
-  if (!success)
-  {
-    char info[512] = {0};
-    char message[1024] = {0};
-    glGetShaderInfoLog(_shader, 512, NULL, info);
-    glDeleteShader(_shader);
-    sprintf(message, "Shader compilation failed: %s", info);
-    log_error(message);
-    return 0;
-  }
-  
-  return _shader;
+  GLint max_v_attribs = 0;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_v_attribs);
+  return sprintf(buffer,
+                 "OpenGL Info\n"
+                 "Maximum nr of vertex attributes: %d",
+                 max_v_attribs);
 }
 
 // Public functions
@@ -63,6 +25,7 @@ GLuint opengl_shader(Shader shader, GLenum shader_type)
 GLboolean opengl_setup(GLFWwindow **window)
 {
   GLFWwindow *_window = NULL;
+  char buffer[1024] = {0};
   if (!glfwInit())
   {
     log_error("Failed to initialise GLFW");
@@ -97,19 +60,52 @@ GLboolean opengl_setup(GLFWwindow **window)
   glfwSetFramebufferSizeCallback(_window, handle_resize);
   glfwSetErrorCallback((GLFWerrorfun)log_glfw_error);
 
+  buffer[opengl_info(buffer)] = '\0';
+  log_debug(buffer);
+
   (*window) = _window;
   
   return GL_TRUE;
 }
 
-GLuint opengl_fragment_shader(Shader shader)
+GLuint opengl_shader(Shader shader)
 {
-  return opengl_shader(shader, GL_FRAGMENT_SHADER);
-}
+  GLint success = 0;
+  GLuint _shader = 0;
+  const GLchar *source_str;
 
-GLuint opengl_vertex_shader(Shader shader)
-{
-  return opengl_shader(shader, GL_VERTEX_SHADER);
+  switch (shader)
+  {
+  case SHADER_DEFAULT_VERTEX:
+    _shader = glCreateShader(GL_VERTEX_SHADER);
+    break;
+  case SHADER_DEFAULT_FRAGMENT:
+    _shader = glCreateShader(GL_FRAGMENT_SHADER);
+    break;
+  default:
+    glDeleteShader(_shader);
+    log_error("Invalid shader");
+    return 0;
+  }
+  source_str = shader_load(shader);
+  glShaderSource(_shader, 1, &source_str, NULL);
+  glCompileShader(_shader);
+
+  glGetShaderiv(_shader, GL_COMPILE_STATUS, &success);
+  if (!success)
+  {
+    char info[512] = {0};
+    char message[1024] = {0};
+    int msg_len = 0;
+    glGetShaderInfoLog(_shader, 512, NULL, info);
+    glDeleteShader(_shader);
+    msg_len = sprintf(message, "Shader compilation failed: %s", info);
+    message[msg_len] = '\0';
+    log_error(message);
+    return 0;
+  }
+
+  return _shader;
 }
 
 GLuint opengl_program(GLuint vertex_shader, GLuint fragment_shader)

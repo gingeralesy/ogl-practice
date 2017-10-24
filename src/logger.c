@@ -18,13 +18,16 @@ static LogLevel min_level = LOGGER_INFO;
 
 // Private headers
 
-static void print_log(int, LogLevel, const char *);
+static void print_log(int, LogLevel, const char *, ...);
 
 // Private functions
 
-void print_log(int error, LogLevel level, const char *text)
+void print_log(int error, LogLevel level, const char *format, ...)
 {
+  va_list args;
   FILE *output = stderr;
+  char text[1024] = {0};
+  int msg_len = 0;
 
   if (level < min_level)
     return;
@@ -34,6 +37,12 @@ void print_log(int error, LogLevel level, const char *text)
   if (level == LOGGER_INFO)
     output = stdout;
 
+  va_start(args, format);
+  msg_len = vsnprintf(text, 1024, format, args);
+  va_end(args);
+
+  text[msg_len] = '\0';
+  
   if (error)
     fprintf(output, "GLFW %s [%x] - %s\n", log_level_str(level), error, text);
   else
@@ -83,24 +92,36 @@ const char *log_level_str_full(LogLevel level)
   return LOG_LEVEL_NAME_FULL[level];
 }
 
-void log_debug(const char *text)
+void log_debug(const char *format, ...)
 {
-  print_log(0, LOGGER_DEBUG, text);
+  va_list args;
+  va_start(args, format);
+  print_log(0, LOGGER_DEBUG, format, args);
+  va_end(args);
 }
 
-void log_info(const char *text)
+void log_info(const char *format, ...)
 {
-  print_log(0, LOGGER_INFO, text);
+  va_list args;
+  va_start(args, format);
+  print_log(0, LOGGER_INFO, format, args);
+  va_end(args);
 }
 
-void log_warning(const char *text)
+void log_warning(const char *format, ...)
 {
-  print_log(0, LOGGER_WARN, text);
+  va_list args;
+  va_start(args, format);
+  print_log(0, LOGGER_WARN, format, args);
+  va_end(args);
 }
 
-void log_error(const char *text)
+void log_error(const char *format, ...)
 {
-  print_log(0, LOGGER_ERROR, text);
+  va_list args;
+  va_start(args, format);
+  print_log(0, LOGGER_ERROR, format, args);
+  va_end(args);
 }
 
 void log_glfw_error(int error, const char *text)

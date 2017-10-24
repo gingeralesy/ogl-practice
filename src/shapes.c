@@ -24,27 +24,25 @@ GLuint shader_program(Shape shape)
   GLuint fragment_shader = 0;
   GLuint shader_program = 0;
   
-  vertex_shader = opengl_vertex_shader(SHADER_DEFAULT);
-  if (!vertex_shader)
-    return 0;
-
   switch (shape)
   {
   case SHAPE_TRIANGLE:
-    fragment_shader = opengl_fragment_shader(SHADER_DEFAULT);
-    break;
-  case SHAPE_SQUARE:
-    fragment_shader = opengl_fragment_shader(SHADER_SECOND);
+  case SHAPE_SQUARE:  
+    vertex_shader = opengl_shader(SHADER_DEFAULT_VERTEX);
+    if (!vertex_shader)
+      return 0;
+
+    fragment_shader = opengl_shader(SHADER_DEFAULT_FRAGMENT);
+    if (!fragment_shader)
+    {
+      log_error("Failed to load fragment shader for %s", SHAPE_TYPE_STR[shape]);
+      glDeleteShader(vertex_shader);
+      return 0;
+    }
     break;
   default:
     log_error("Invalid shape");
     break;
-  }
-
-  if (!fragment_shader)
-  {
-    glDeleteShader(vertex_shader);
-    return 0;
   }
   
   shader_program = opengl_program(vertex_shader, fragment_shader);
@@ -73,15 +71,22 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
   switch(shape)
   {
   case SHAPE_TRIANGLE:
+    data->vertex_shader = SHADER_DEFAULT_VERTEX;
+    data->fragment_shader = SHADER_DEFAULT_FRAGMENT;
+
     data->vertex_count = SHAPE_TRIANGLE_COUNT;
     data->vertices_size = SHAPE_TRIANGLE_SIZE;
     data->index_count = SHAPE_TRIANGLE_INDEX_COUNT;
     data->indices_size = SHAPE_TRIANGLE_INDEX_SIZE;
+    data->vertex_shader = SHADER_DEFAULT_VERTEX;
 
     vertices = SHAPE_TRIANGLE_ARR;
     indices = SHAPE_TRIANGLE_INDICES;
     break;
   case SHAPE_SQUARE:
+    data->vertex_shader = SHADER_DEFAULT_VERTEX;
+    data->fragment_shader = SHADER_DEFAULT_FRAGMENT;
+
     data->vertex_count = SHAPE_SQUARE_COUNT;
     data->vertices_size = SHAPE_SQUARE_SIZE;
     data->index_count = SHAPE_SQUARE_INDEX_COUNT;
@@ -134,9 +139,8 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
     return GL_FALSE;
   }
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), NULL);
-  glEnableVertexAttribArray(0);
-
+  shader_prepare_attributes(data->vertex_shader);
+  
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
@@ -167,41 +171,35 @@ char * shape_data_str(ShapeData *data)
             "type          : %s\n"
             "vertex count  : %d\n"
             "index count   : %d\n"
-            "vertices      : [",
+            "vertices      : [\n"
+            "  // x,    y,    z,    r,    g,    b,",
             SHAPE_TYPE_STR[data->type],
             data->vertex_count,
             data->index_count);
 
   for (i = 0; i < data->vertex_count; i++)
   {
-    if (i % 3 == 0)
+    if (i % 6 == 0)
       length += sprintf(tmp + length, "\n  ");
 
     length += sprintf(tmp + length, "% 4.1f", data->vertices[i]);
 
     if (i < (data->vertex_count - 1))
       length += sprintf(tmp + length, ", ");
-    else
-      length += sprintf(tmp + length, "\n");
   }
 
   length +=
-    sprintf(tmp + length, "]\n"
-            "indices       : [");
+    sprintf(tmp + length, "\n]\n"
+            "indices       : [ ");
 
   for (i = 0; i < data->index_count; i++)
   {
-    if (i % 3 == 0)
-      length += sprintf(tmp + length, "\n  ");
-
     length += sprintf(tmp + length, "%d", data->indices[i]);
 
     if (i < (data->index_count - 1))
       length += sprintf(tmp + length, ", ");
-    else
-      length += sprintf(tmp + length, "\n");
   }
-  length += sprintf(tmp + length, "]\n");
+  length += sprintf(tmp + length, " ]\n");
   
   str = calloc(length + 1, sizeof(char));
   memcpy(str, tmp, length);
@@ -213,7 +211,27 @@ char * shape_data_str(ShapeData *data)
 
 void shape_draw(ShapeData *data)
 {
+  GLfloat timeValue, multiplier;
+  GLint vertexColourLoc;
   glUseProgram(data->shader_program);
+
+  switch(data->type)
+  {
+  case SHAPE_TRIANGLE:
+  case SHAPE_SQUARE:
+    timeValue = glfwGetTime();
+    multiplier = (sin(timeValue) / 2.f) + .5f;
+    vertexColourLoc =
+      glGetUniformLocation(data->shader_program, "colourMultiplier");
+    if (vertexColourLoc < 0)
+      log_error("Could not get uniform location for 'colourMultiplier'");
+    else
+      glUniform1f(vertexColourLoc, multiplier);
+    break;
+  default:
+    break;
+  }
+
   glBindVertexArray(data->vertex_array);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->element_buffer);
   

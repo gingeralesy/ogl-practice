@@ -33,6 +33,11 @@ int main(int argc, char *argv[])
   log_info("Shape data retrieved");
 
   shape = &triangle;
+
+  char *str = shape_data_str(shape);
+  log_info(str);
+  free(str);
+
   while (!glfwWindowShouldClose(window))
   {
     handle_input(window);
