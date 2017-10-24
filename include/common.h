@@ -24,4 +24,10 @@
 #define max(x, y) (x < y ? y : x)
 #endif // max
 
+#ifndef array_length
+#define array_length(x) (sizeof(x) / sizeof(x[0]))
+#else
+#error "array_length already defined"
+#endif // array_length
+
 #endif // COMMON_H
