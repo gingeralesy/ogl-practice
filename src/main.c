@@ -1,7 +1,6 @@
 #include <common.h>
 #include <logger.h>
 #include <handlers.h>
-#include <opengl.h>
 #include <shapes.h>
 
 // Private headers
