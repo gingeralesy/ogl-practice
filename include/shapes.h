@@ -13,9 +13,7 @@ typedef enum shapes_e
 typedef struct shape_data_t
 {
   Shape type;
-  Shader vertex_shader;
-  Shader fragment_shader;
-  GLuint shader_program;
+  Shader *shader_program;
   GLuint vertex_array;
   GLuint element_buffer;
   GLuint vertex_buffer;

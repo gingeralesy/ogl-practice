@@ -5,7 +5,7 @@
 #include <shaders.h>
 
 GLboolean opengl_setup(GLFWwindow **);
-GLuint opengl_shader(Shader);
+GLuint opengl_shader(ShaderFragment);
 GLuint opengl_program(GLuint, GLuint);
 
 #endif // SB_OPENGL_H

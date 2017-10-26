@@ -18,13 +18,12 @@ static LogLevel min_level = LOGGER_INFO;
 
 // Private headers
 
-static void print_log(int, LogLevel, const char *, ...);
+static void print_log(int, LogLevel, const char *, va_list);
 
 // Private functions
 
-void print_log(int error, LogLevel level, const char *format, ...)
+void print_log(int error, LogLevel level, const char *format, va_list args)
 {
-  va_list args;
   FILE *output = stderr;
   char text[1024] = {0};
   int msg_len = 0;
@@ -37,9 +36,7 @@ void print_log(int error, LogLevel level, const char *format, ...)
   if (level == LOGGER_INFO)
     output = stdout;
 
-  va_start(args, format);
   msg_len = vsnprintf(text, 1024, format, args);
-  va_end(args);
 
   text[msg_len] = '\0';
   
@@ -126,5 +123,6 @@ void log_error(const char *format, ...)
 
 void log_glfw_error(int error, const char *text)
 {
-  print_log(error, LOGGER_ERROR, text);
+  va_list dummy = {0};
+  print_log(error, LOGGER_ERROR, text, dummy);
 }

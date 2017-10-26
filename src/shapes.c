@@ -1,7 +1,6 @@
 #include "shapes.h"
 
 #include <logger.h>
-#include <opengl.h>
 
 // Private constants
 
@@ -13,45 +12,27 @@ static const char *SHAPE_TYPE_STR[] =
 
 // Private headers
 
-static GLuint shader_program(Shape);
+static Shader * shader_program(Shape);
 static GLboolean shape_create(Shape, ShapeData *, GLenum);
 
 // Private functions
 
-GLuint shader_program(Shape shape)
+Shader * shader_program(Shape shape)
 {
-  GLuint vertex_shader = 0;
-  GLuint fragment_shader = 0;
-  GLuint shader_program = 0;
+  ShaderFragment vertex = SHADER_DEFAULT_VERTEX;
+  ShaderFragment fragment = SHADER_DEFAULT_FRAGMENT;
   
   switch (shape)
   {
   case SHAPE_TRIANGLE:
-  case SHAPE_SQUARE:  
-    vertex_shader = opengl_shader(SHADER_DEFAULT_VERTEX);
-    if (!vertex_shader)
-      return 0;
-
-    fragment_shader = opengl_shader(SHADER_DEFAULT_FRAGMENT);
-    if (!fragment_shader)
-    {
-      log_error("Failed to load fragment shader for %s", SHAPE_TYPE_STR[shape]);
-      glDeleteShader(vertex_shader);
-      return 0;
-    }
+  case SHAPE_SQUARE:
+    return shader_create(&vertex, 1, &fragment, 1);
     break;
   default:
     log_error("Invalid shape");
     break;
   }
-  
-  shader_program = opengl_program(vertex_shader, fragment_shader);
-  glDeleteShader(vertex_shader);
-  glDeleteShader(fragment_shader);
-  
-  if (!shader_program)
-    return 0;
-  return shader_program;
+  return NULL;
 }
 
 GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
@@ -67,13 +48,17 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
 
   data->type = shape;
   data->shader_program = shader_program(shape);
+
+  if (!data->shader_program)
+  {
+    log_error("Could not create shader program for shape '%s'",
+              SHAPE_TYPE_STR[shape]);
+    return GL_FALSE;
+  }
   
   switch(shape)
   {
   case SHAPE_TRIANGLE:
-    data->vertex_shader = SHADER_DEFAULT_VERTEX;
-    data->fragment_shader = SHADER_DEFAULT_FRAGMENT;
-
     data->vertices_size = sizeof(SHAPE_TRIANGLE_ARR);
     data->vertex_count = array_length(SHAPE_TRIANGLE_ARR);
 
@@ -84,9 +69,6 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
     indices = SHAPE_TRIANGLE_INDICES;
     break;
   case SHAPE_SQUARE:
-    data->vertex_shader = SHADER_DEFAULT_VERTEX;
-    data->fragment_shader = SHADER_DEFAULT_FRAGMENT;
-
     data->vertices_size = sizeof(SHAPE_SQUARE_ARR);
     data->vertex_count = array_length(SHAPE_SQUARE_ARR);
 
@@ -140,7 +122,12 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
     return GL_FALSE;
   }
 
-  shader_prepare_attributes(data->vertex_shader);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), NULL);
+  glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                        (GLvoid *)(3 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(1);
   
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -212,22 +199,16 @@ char * shape_data_str(ShapeData *data)
 
 void shape_draw(ShapeData *data)
 {
-  GLfloat timeValue, multiplier;
-  GLint vertexColourLoc;
-  glUseProgram(data->shader_program);
+  GLfloat time_value = .0f, multiplier = .0f;
 
+  shader_use(data->shader_program);
   switch(data->type)
   {
   case SHAPE_TRIANGLE:
   case SHAPE_SQUARE:
-    timeValue = glfwGetTime();
-    multiplier = (sin(timeValue) / 2.f) + .5f;
-    vertexColourLoc =
-      glGetUniformLocation(data->shader_program, "colourMultiplier");
-    if (vertexColourLoc < 0)
-      log_error("Could not get uniform location for 'colourMultiplier'");
-    else
-      glUniform1f(vertexColourLoc, multiplier);
+    time_value = glfwGetTime();
+    multiplier = (sin(time_value) / 2.f) + .5f;
+    shader_set_float(data->shader_program, "colourMultiplier", multiplier);
     break;
   default:
     break;

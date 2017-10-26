@@ -68,7 +68,7 @@ GLboolean opengl_setup(GLFWwindow **window)
   return GL_TRUE;
 }
 
-GLuint opengl_shader(Shader shader)
+GLuint opengl_shader(ShaderFragment shader)
 {
   GLint success = 0;
   GLuint _shader = 0;
