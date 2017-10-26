@@ -4,7 +4,6 @@
 #include <common.h>
 #include <shaders.h>
 
-GLboolean opengl_setup(GLFWwindow **);
 GLuint opengl_shader(ShaderFragment);
 GLuint opengl_program(GLuint, GLuint);
 

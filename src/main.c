@@ -4,6 +4,69 @@
 #include <opengl.h>
 #include <shapes.h>
 
+// Private headers
+
+static int opengl_info(char *);
+static GLboolean opengl_setup(GLFWwindow **);
+
+// Private functions
+
+int opengl_info(char *buffer)
+{
+  GLint max_v_attribs = 0;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_v_attribs);
+  return sprintf(buffer,
+                 "OpenGL Info\n"
+                 "Maximum nr of vertex attributes: %d",
+                 max_v_attribs);
+}
+
+GLboolean opengl_setup(GLFWwindow **window)
+{
+  GLFWwindow *_window = NULL;
+  char buffer[1024] = {0};
+  if (!glfwInit())
+  {
+    log_error("Failed to initialise GLFW");
+    return GL_FALSE;
+  }
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif // __APPLE__
+
+  _window = glfwCreateWindow(800, 600, "Sandbox", NULL, NULL);
+  if (!_window)
+  {
+    log_error("Failed to create GLFW window");
+    glfwTerminate();
+    return GL_FALSE;
+  }
+  glfwMakeContextCurrent(_window);
+
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  {
+    log_error("Failed to initialise GLAD");
+    glfwTerminate();
+    return GL_FALSE;
+  }
+
+  glViewport(0, 0, 800, 600);
+  
+  glfwSetFramebufferSizeCallback(_window, handle_resize);
+  glfwSetErrorCallback((GLFWerrorfun)log_glfw_error);
+
+  buffer[opengl_info(buffer)] = '\0';
+  log_debug(buffer);
+
+  (*window) = _window;
+  
+  return GL_TRUE;
+}
+
 // Main
 
 int main(int argc, char *argv[])
