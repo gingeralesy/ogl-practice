@@ -209,6 +209,7 @@ void shape_draw(ShapeData *data)
     time_value = glfwGetTime();
     multiplier = (sin(time_value) / 2.f) + .5f;
     shader_set_float(data->shader_program, "colourMultiplier", multiplier);
+    shader_set_float(data->shader_program, "xOffset", multiplier - .5f);
     break;
   default:
     break;
