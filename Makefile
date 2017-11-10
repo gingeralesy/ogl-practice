@@ -56,11 +56,12 @@ endif
 
 .PHONY: remove
 remove: clean
-	@$(RM) $(OUTFILE)
 ifneq ($(wildcard $(ODIR)/.),)
+	@$(RM) $(OBJECTS)
 	@$(RMDIR) $(ODIR)
 endif
 ifneq ($(wildcard $(BDIR)/.),)
+	@$(RM) $(OUTFILE)
 	@$(RMDIR) $(BDIR)
 endif
 	@echo " *** Executable removed!"
