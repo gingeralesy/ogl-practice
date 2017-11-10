@@ -21,8 +21,11 @@ typedef struct shape_data_t
   GLsizeiptr vertices_size;
   GLsizei index_count;
   GLsizeiptr indices_size;
+  GLsizei tex_crd_count;
+  GLsizeiptr tex_crd_size;
   GLfloat vertices[UINT16_MAX];
   GLuint indices[UINT16_MAX];
+  GLfloat texture_crds[UINT16_MAX];
 } ShapeData;
 
 static const GLfloat SHAPE_TRIANGLE_ARR[] =
@@ -35,6 +38,12 @@ static const GLfloat SHAPE_TRIANGLE_ARR[] =
 static const GLuint SHAPE_TRIANGLE_INDICES[] =
 {
   0, 1, 2
+};
+static const GLfloat SHAPE_TRIANGLE_TEX_COORDS[] =
+{
+  .0f, .0f, // lover left
+  1.f, .0f, // lower right
+  .5f, 1.f  // upper middle
 };
 
 static const GLfloat SHAPE_SQUARE_ARR[] =
@@ -49,6 +58,13 @@ static const GLuint SHAPE_SQUARE_INDICES[] =
 {
   0, 1, 3, // first triangle
   1, 2, 3  // second triangle
+};
+static const GLfloat SHAPE_SQUARE_TEX_COORDS[] =
+{
+  1.f, 1.f, // upper right
+  1.f, .0f, // lower right
+  .0f, .0f, // lower left
+  .0f, 1.f  // upper left
 };
 
 GLboolean create_triangle(ShapeData *, GLenum);

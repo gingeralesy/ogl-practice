@@ -40,6 +40,7 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
   GLuint i = 0;
   const GLfloat *vertices = NULL;
   const GLuint *indices = NULL;
+  const GLfloat *tex_coords = NULL;
   if (!data)
   {
     log_error("Must provide proper shape data container");
@@ -67,6 +68,7 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
 
     vertices = SHAPE_TRIANGLE_ARR;
     indices = SHAPE_TRIANGLE_INDICES;
+    tex_coords = SHAPE_TRIANGLE_TEX_COORDS;
     break;
   case SHAPE_SQUARE:
     data->vertices_size = sizeof(SHAPE_SQUARE_ARR);
@@ -75,8 +77,12 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
     data->indices_size = sizeof(SHAPE_SQUARE_INDICES);
     data->index_count = array_length(SHAPE_SQUARE_INDICES);
 
+    data->tex_crd_size = sizeof(SHAPE_SQUARE_TEX_COORDS);
+    data->tex_crd_count = array_length(SHAPE_SQUARE_TEX_COORDS);
+
     vertices = SHAPE_SQUARE_ARR;
     indices = SHAPE_SQUARE_INDICES;
+    tex_coords = SHAPE_SQUARE_TEX_COORDS;
     break;
   default:
     log_error("Invalid shape provided");
@@ -90,6 +96,8 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
     data->vertices[i] = vertices[i];
   for (i = 0; i < data->index_count; i++)
     data->indices[i] = indices[i];
+  for (i = 0; i < data->tex_crd_count; i++)
+    data->texture_crds[i] = tex_coords[i];
 
   glGenBuffers(1, &data->element_buffer);
   glGenBuffers(1, &data->vertex_buffer);
