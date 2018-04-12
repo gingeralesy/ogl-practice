@@ -9,6 +9,6 @@ out vec4 vertexColour;
 
 void main()
 {
-  gl_Position = vec4(aPos.x + xOffset, aPos.yz, 1.0f);
+  gl_Position = vec4(aPos.x + xOffset, aPos.yz, 1.0);
   vertexColour = colourMultiplier * vec4(aColour, 1.0);
 }

@@ -82,6 +82,7 @@ GLboolean opengl_setup(GLFWwindow **window)
 void switch_shape(GLFWwindow *win, int key, void *arg)
 {
   ShapeState *shapes = (ShapeState *)arg;
+  int i = 0;
 
   switch (key)
   {
@@ -93,6 +94,13 @@ void switch_shape(GLFWwindow *win, int key, void *arg)
     break;
   case GLFW_KEY_D:
     shapes->current = NULL;
+    break;
+  case GLFW_KEY_R:
+    for (i = 0; i < shapes->count; i++)
+    {
+      if (shapes->shapes[i])
+        shape_refresh(shapes->shapes[i]);
+    }
     break;
   }
 }
@@ -154,6 +162,7 @@ int main(int argc, char *argv[])
   register_keyboard_handler(GLFW_KEY_A, switch_shape, (void *)&shapes);
   register_keyboard_handler(GLFW_KEY_S, switch_shape, (void *)&shapes);
   register_keyboard_handler(GLFW_KEY_D, switch_shape, (void *)&shapes);
+  register_keyboard_handler(GLFW_KEY_R, switch_shape, (void *)&shapes);
   log_info("Handlers registered");
 
   shapes.current = shapes.shapes[1];

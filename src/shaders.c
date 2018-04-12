@@ -150,6 +150,15 @@ const char * shader_load(ShaderFragment shader)
   return NULL;
 }
 
+const char * shader_reload(ShaderFragment shader)
+{
+  if (0 <= shader && shader < SHADER_COUNT &&
+      SHADERS_MEM && SHADERS_MEM[shader])
+    shader_unload(shader);
+  
+  return shader_load(shader);
+}
+
 void shader_unload(ShaderFragment shader)
 {
   if (SHADERS_MEM && SHADERS_MEM[shader])
