@@ -30,10 +30,10 @@ RM = rm -f
 RMDIR = rmdir
 CP = rsync -rup --delete
 
-SOURCES  := $(wildcard $(SDIR)/*.c)
-HEADERS := $(wildcard $(IDIR)/*.h)
-OBJECTS  := $(SOURCES:$(SDIR)/%.c=$(ODIR)/%.o)
-OUTFILE   = $(BDIR)/$(NAME)
+SOURCES = $(wildcard $(SDIR)/*.c)
+HEADERS = $(wildcard $(IDIR)/*.h)
+OBJECTS = $(SOURCES:$(SDIR)/%.c=$(ODIR)/%.o)
+OUTFILE = $(BDIR)/$(NAME)
 
 $(OUTFILE): $(BDIR) $(ODDIR) objects
 	@$(LD) $(OBJECTS) $(LDFLAGS) -o $@
