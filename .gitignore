@@ -56,3 +56,11 @@ bin/
 old/
 tmp/
 obj/
+
+# Generated files
+TAGS
+
+# Glad files
+include/glad/
+include/KHR/
+src/glad.c

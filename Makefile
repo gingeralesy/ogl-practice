@@ -12,7 +12,16 @@ DDIR = data
 ODDIR = $(BDIR)/$(DDIR)
 
 CFLAGS = -std=c11 -Wall -I$(IDIR) $(shell pkg-config --cflags glfw3 glm)
-LDFLAGS = -L$(LDIR) $(shell pkg-config --libs glfw3 glm) -lopengl32 -lgdi32
+LDFLAGS = -L$(LDIR) $(shell pkg-config --libs glfw3 glm)
+
+# Check for Windows
+ifdef SYSTEMROOT
+  LDFLAGS = $(LDFLAGS) -lopengl32 -lgdi32
+else
+  ifneq ($(shell uname), Linux)
+    LDFLAGS = $(LDFLAGS) -lopengl32 -lgdi32
+  endif
+endif
 
 MKDIR_P = mkdir -p
 RM = rm -f
@@ -20,7 +29,7 @@ RMDIR = rmdir
 CP = rsync -rup --delete
 
 SOURCES  := $(wildcard $(SDIR)/*.c)
-INCLUDES := $(wildcard $(IDIR)/*.h)
+HEADERS := $(wildcard $(IDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SDIR)/%.c=$(ODIR)/%.o)
 OUTFILE   = $(BDIR)/$(NAME)
 
@@ -28,9 +37,8 @@ $(OUTFILE): $(BDIR) $(ODDIR) objects
 	@$(LD) $(OBJECTS) $(LDFLAGS) -o $@
 	@echo " *** Linked "$@" successfully!"
 
-.PHONY: objects
-objects: $(ODIR) $(OBJECTS)
-	@echo " *** Compilation complete!"
+tags: $(HEADERS) $(SOURCES)
+	@ctags -e $^
 
 $(OBJECTS): $(ODIR)/%.o : $(SDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -38,6 +46,9 @@ $(OBJECTS): $(ODIR)/%.o : $(SDIR)/%.c
 
 $(ODIR):
 	@$(MKDIR_P) $(ODIR)
+
+objects: $(ODIR) $(OBJECTS)
+	@echo " *** Compilation complete!"
 
 $(BDIR):
 	@$(MKDIR_P) $(BDIR)
