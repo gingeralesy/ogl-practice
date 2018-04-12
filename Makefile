@@ -16,10 +16,12 @@ LDFLAGS = -L$(LDIR) $(shell pkg-config --libs glfw3 glm)
 
 # Check for Windows
 ifdef SYSTEMROOT
-  LDFLAGS = $(LDFLAGS) -lopengl32 -lgdi32
+  LDFLAGS := $(LDFLAGS) -lopengl32 -lgdi32
 else
-  ifneq ($(shell uname), Linux)
-    LDFLAGS = $(LDFLAGS) -lopengl32 -lgdi32
+  ifeq ($(shell uname), Linux)
+    LDFLAGS := $(LDFLAGS) -lm -ldl
+  else
+    LDFLAGS := $(LDFLAGS) -lopengl32 -lgdi32
   endif
 endif
 
