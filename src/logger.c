@@ -66,19 +66,11 @@ void print_log(int error, LogLevel level, const char *format, va_list args)
 
 // Public functions
 
-/**
- * @brief Gets the current minimum log level.
- * @return minimum log level
- */
 LogLevel log_level()
 {
   return min_level;
 }
 
-/**
- * @brief Sets the minimum logging level.
- * @param level log level
- */
 void set_log_level(LogLevel level)
 {
   if (level < LOGGER_DEBUG)
@@ -100,11 +92,6 @@ void set_log_level(LogLevel level)
   }
 }
 
-/**
- * @brief Gets the string representation of the log level.
- * @param level log level
- * @return log level as string (as in "WARN" instead of "WARNING")
- */
 const char *log_level_str(LogLevel level)
 {
   if (level < LOGGER_DEBUG || LOGGER_UNKNOWN_LEVEL <= level)
@@ -112,11 +99,6 @@ const char *log_level_str(LogLevel level)
   return LOG_LEVEL_NAME[level];
 }
 
-/**
- * @brief Gets the full string representation of the log level.
- * @param level log level
- * @return full log level as string (as in "WARNING" instead of "WARN")
- */
 const char *log_level_str_full(LogLevel level)
 {
   if (level < LOGGER_DEBUG || LOGGER_UNKNOWN_LEVEL <= level)
@@ -124,11 +106,6 @@ const char *log_level_str_full(LogLevel level)
   return LOG_LEVEL_NAME_FULL[level];
 }
 
-/**
- * @brief Prints a debug message.
- * @param format print format
- * @param ... format arguments
- */
 void log_debug(const char *format, ...)
 {
   va_list args;
@@ -137,11 +114,6 @@ void log_debug(const char *format, ...)
   va_end(args);
 }
 
-/**
- * @brief Prints an info message.
- * @param format print format
- * @param ... format arguments
- */
 void log_info(const char *format, ...)
 {
   va_list args;
@@ -150,11 +122,6 @@ void log_info(const char *format, ...)
   va_end(args);
 }
 
-/**
- * @brief Prints a warning message.
- * @param format print format
- * @param ... format arguments
- */
 void log_warning(const char *format, ...)
 {
   va_list args;
@@ -163,11 +130,6 @@ void log_warning(const char *format, ...)
   va_end(args);
 }
 
-/**
- * @brief Prints an error message.
- * @param format print format
- * @param ... format arguments
- */
 void log_error(const char *format, ...)
 {
   va_list args;
@@ -176,14 +138,6 @@ void log_error(const char *format, ...)
   va_end(args);
 }
 
-/**
- * @brief Prints a GLFW error message.
- * 
- * This is used as a callback for GLFW to print error messages with.
- * 
- * @param error error number
- * @param text error text
- */
 void log_glfw_error(int error, const char *text)
 {
   va_list dummy = {0};
