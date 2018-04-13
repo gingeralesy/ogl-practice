@@ -97,13 +97,14 @@ static const GLfloat SHAPE_SQUARE_TEX_COORDS[] =
  * @param data_usage usage pattern of the data store, GL_STATIC_DRAW or GL_DYNAMIC_DRAW
  * @return GL_TRUE if success, GL_FALSE otherwise
  */
-GLboolean create_triangle(ShapeData *shape, GLenum data_usage);
+GLboolean create_triangle(ShapeData *data, GLenum data_usage);
 /**
  * @brief Creates a square shape into the data container
+ * @param data container to be filled with the data
  * @param data_usage usage pattern of the data store, GL_STATIC_DRAW or GL_DYNAMIC_DRAW
  * @return GL_TRUE if success, GL_FALSE otherwise
  */
-GLboolean create_square(ShapeData *shape, GLenum data_usage);
+GLboolean create_square(ShapeData *data, GLenum data_usage);
 /**
  * @brief Information about the shape in the data
  * @param data shape data
