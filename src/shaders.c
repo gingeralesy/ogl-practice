@@ -144,6 +144,18 @@ Shader * shader_create(ShaderFragment *vertices, GLuint vertex_count,
   return shader;
 }
 
+void shader_delete(Shader *shader)
+{
+  if (shader)
+  {
+    Shader *tmp = shader;
+    shader = NULL;
+    
+    glDeleteProgram(tmp->id);
+    free(tmp);
+  }
+}
+
 GLuint shader_id(Shader *shader)
 {
   return shader->id;
@@ -179,6 +191,7 @@ void shader_refresh(Shader *shader)
     shader_create(shader->vertex_shaders, shader->vertex_shader_count,
                   shader->fragment_shaders, shader->fragment_shader_count);
 
+  glDeleteProgram(shader->id);
   shader->id = tmp->id;
   free(tmp);
 }

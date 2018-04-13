@@ -197,17 +197,13 @@ char * shape_data_str(ShapeData *data)
 
 void shape_draw(ShapeData *data)
 {
-  GLfloat time_value = .0f, multiplier = .0f;
-
   shader_use(data->shader_program);
   switch(data->type)
   {
   case SHAPE_TRIANGLE:
   case SHAPE_SQUARE:
-    time_value = glfwGetTime();
-    multiplier = (sin(time_value) / 2.f) + .5f;
-    shader_set_float(data->shader_program, "colourMultiplier", multiplier);
-    shader_set_float(data->shader_program, "xOffset", multiplier - .5f);
+    shader_set_float(data->shader_program, "colourMultiplier", 1.f);
+    shader_set_float(data->shader_program, "xOffset", sin(glfwGetTime()) / 2.f);
     break;
   default:
     break;
@@ -233,7 +229,7 @@ void shape_delete(ShapeData *data)
     if (data->element_buffer)
       glDeleteBuffers(1, &(data->element_buffer));
     if (data->shader_program)
-      free(data->shader_program);
+      shader_delete(data->shader_program);
     memset(data, 0, sizeof(ShapeData));
   }
 }

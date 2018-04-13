@@ -20,6 +20,11 @@ typedef struct shader_t Shader;
 Shader * shader_create(ShaderFragment *vertices, GLuint vertex_count,
                        ShaderFragment *fragments, GLuint fragment_count);
 /**
+ * @brief Deletes the associated shader program from memory.
+ * @param shader shader program
+ */
+void shader_delete(Shader *shader);
+/**
  * @brief Gets the ID of the shader program
  * @param shader shader program
  * @return shader ID
