@@ -18,13 +18,42 @@
 #include <GLFW/glfw3.h>
 
 #ifndef min
-#define min(x, y) (x < y ? x : y)
+/**
+ * @brief Returns the lower value of the two
+ * 
+ * This is type safe using GCC's typeof.
+ * 
+ * @param a first value
+ * @param b second value
+ * @return lower value of a and b
+ */
+#define min(a,b)                                \
+  { __typeof__ (a) _a = (a);                    \
+    __typeof__ (b) _b = (b);                    \
+    _a < _b ? _a : _b; }
 #endif // min
 #ifndef max
-#define max(x, y) (x < y ? y : x)
+/**
+ * @brief Returns the higher value of the two
+ * 
+ * This is type safe using GCC's typeof.
+ * 
+ * @param a first value
+ * @param b second value
+ * @return higher value of a and b
+ */
+#define max(a,b)                                \
+  { __typeof__ (a) _a = (a);                    \
+    __typeof__ (b) _b = (b);                    \
+    _b < _a ? _a : _b; }
 #endif // max
 
 #ifndef array_length
+/**
+ * @brief Returns the length of an array
+ * @param x an array with values
+ * @return length of the array with values of arbitrary size
+ */
 #define array_length(x) (sizeof(x) / sizeof(x[0]))
 #else
 #error "array_length already defined"

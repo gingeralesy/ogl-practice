@@ -13,7 +13,7 @@ typedef enum log_level_e
   LOGGER_UNKNOWN_LEVEL
 } LogLevel;
 
-LogLevel log_level();
+LogLevel log_level(void);
 void set_log_level(LogLevel);
 const char *log_level_str(LogLevel);
 const char *log_level_str_full(LogLevel);

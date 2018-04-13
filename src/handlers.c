@@ -2,18 +2,45 @@
 
 #include <logger.h>
 
+/**
+ * @brief An event handler
+ */
 typedef struct handler_function_t
 {
-  int key;
-  void *args;
-  void *function;
+  int key;        /**< Key that matches this handler */
+  void *args;     /**< Extra args passed to the handler function */
+  void *function; /**< Handler function */
 } HandlerFunction;
 
-static void handle_close_window(GLFWwindow *, int, void *);
-static void handle_fill_polygons(GLFWwindow *, int, void *);
-static void handle_line_polygons(GLFWwindow *, int, void *);
+/**
+ * @brief A callback for window close event.
+ * @param window GLFW window
+ * @param key key to register the handler for
+ * @param args additional args to pass for the handler
+ */
+static void handle_close_window(GLFWwindow *window, int key, void *args);
+/**
+ * @brief A callback for polygon fill draw mode.
+ * @param window GLFW window
+ * @param key key to register the handler for
+ * @param args additional args to pass for the handler
+ */
+static void handle_fill_polygons(GLFWwindow *window, int key, void *args);
+/**
+ * @brief A callback for polygon line draw mode.
+ * @param window GLFW window
+ * @param key key to register the handler for
+ * @param args additional args to pass for the handler
+ */
+static void handle_line_polygons(GLFWwindow *window, int key, void *args);
 
+/**
+ * @brief Memory chunk for handlers.
+ */
 static HandlerFunction handler_functions[2048] = {0};
+/**
+ * @brief Number of handlers in memory.
+ */
 static GLuint handler_count = 0;
 
 // Private functions

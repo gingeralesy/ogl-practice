@@ -16,7 +16,15 @@ static const char *SHAPE_TYPE_STR[] =
 };
 
 // Private headers
-static GLboolean shape_create(Shape, ShapeData *, GLenum);
+
+/**
+ * @brief Creates a shape into the data container
+ * @param shape which shape is wanted to create
+ * @param data container to be filled with the data
+ * @param data_usage usage pattern of the data store, GL_STATIC_DRAW or GL_DYNAMIC_DRAW
+ * @return GL_TRUE if success, GL_FALSE otherwise
+ */
+static GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage);
 
 // Private functions
 
