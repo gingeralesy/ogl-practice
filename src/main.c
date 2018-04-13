@@ -5,21 +5,55 @@
 
 // Private structs
 
+/**
+ * @brief Keeps track of the state which shapes are shown and how many there are.
+ */
 typedef struct shape_state_t
 {
-  int count;
-  ShapeData *current;
-  ShapeData *shapes[32];
+  int count;             /**< Number of shapes in memory */
+  ShapeData *current;    /**< Current shape displayed */
+  ShapeData *shapes[32]; /**< Shapes in memory */
 } ShapeState;
 
 // Private headers
 
-static int opengl_info(char *);
-static GLboolean opengl_setup(GLFWwindow **);
-static void switch_shape(GLFWwindow *, int, void *);
-static GLboolean add_shape(ShapeState *, Shape);
-static GLboolean add_shapes(ShapeState *);
-static void remove_shapes(ShapeState *);
+/**
+ * @brief Prints the Open GL infor into the buffer.
+ * @param buffer Buffer to write into
+ * @return length of the data written into the buffer
+ */
+static int opengl_info(char *buffer);
+/**
+ * @brief Sets up OpeNGL and fills the window pointer with an initialised window
+ * @param window pointer to the window to be filled
+ * @return true if success
+ */
+static GLboolean opengl_setup(GLFWwindow **window);
+/**
+ * @brief Callback for keyboard event where shape is switched.
+ * @param win GLFW window
+ * @param key key pressed
+ * @param arg additional callback data argument, this is ignored
+ */
+static void switch_shape(GLFWwindow *win, int key, void *arg);
+/**
+ * @brief Adds a shape into the shape state
+ * @param shapes Shape state in memory
+ * @param shape Shape to add into state
+ * @return true if success
+ */
+static GLboolean add_shape(ShapeState *shapes, Shape shape);
+/**
+ * @brief Adds all known shapes into the shape state
+ * @param shapes Shape state in memory
+ * @return true if success
+ */
+static GLboolean add_shapes(ShapeState *shapes);
+/**
+ * @brief Removes all shapes from memory.
+ * @param shapes Shape state in memory
+ */
+static void remove_shapes(ShapeState *shapes);
 
 // Private functions
 
