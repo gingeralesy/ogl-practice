@@ -14,11 +14,11 @@
  */
 typedef struct shader_t
 {
-  GLuint id;
-  ShaderFragment vertex_shaders[SHADER_MAX_FRAGMENTS];
-  GLuint vertex_shader_count;
-  ShaderFragment fragment_shaders[SHADER_MAX_FRAGMENTS];
-  GLuint fragment_shader_count;
+  GLuint id;                                             /**< Shader program ID from OpenGL */
+  ShaderFragment vertex_shaders[SHADER_MAX_FRAGMENTS];   /**< Vertex shaders */
+  GLuint vertex_shader_count;                            /**< Number of vertex shaders */
+  ShaderFragment fragment_shaders[SHADER_MAX_FRAGMENTS]; /**< Fragment shaders */
+  GLuint fragment_shader_count;                          /**< Number of fragment shaders */
 } Shader;
 
 // Private headers
