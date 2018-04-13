@@ -2,70 +2,46 @@
 
 #include <logger.h>
 
+/**
+ * @brief Total number of fragments supported by a shader program.
+ */
+#define SHADER_MAX_FRAGMENTS (128)
+
 // Private structs
 
+/**
+ * @brief Container for information on a shader program.
+ */
 typedef struct shader_t
 {
   GLuint id;
+  ShaderFragment vertex_shaders[SHADER_MAX_FRAGMENTS];
+  GLuint vertex_shader_count;
+  ShaderFragment fragment_shaders[SHADER_MAX_FRAGMENTS];
+  GLuint fragment_shader_count;
 } Shader;
-
-// Private members
-
-static char **SHADERS_MEM = NULL;
 
 // Private headers
 
-static GLboolean read_file(char **, const char *);
-static GLuint shader_compile(GLenum, ShaderFragment *, GLuint);
-static GLint shader_get_uniform_loc(GLuint, const char *);
+/**
+ * @brief Compiles a shader in the GPU
+ * @param shader_type shader type (vertex or fragment)
+ * @param fragments shader fragments
+ * @param count number of shader fragments
+ * @return shader ID
+ */
+static GLuint shader_compile(GLenum shader_type,
+                             ShaderFragment *fragments,
+                             GLuint count);
+/**
+ * @brief Get the location of the uniform in the shader.
+ * @param shader ID of a shader program
+ * @param name name of the uniform
+ * @return non-negative integer on success, -1 otherwise
+ */
+static GLint shader_get_uniform_loc(GLuint shader, const char *name);
 
 // Private functions
-
-GLboolean read_file(char **buffer, const char *filename)
-{
-  GLuint64 filesize = 0, bytes_read = 0;
-  char *_buffer = NULL;
-  FILE *file = NULL;
-
-  if (!(file = fopen(filename, "r+")))
-  {
-    log_error("Tried to load an invalid shader fragment file: %s", filename);
-    return GL_FALSE;
-  }
-
-  if (fseek(file, 0L, SEEK_END) != 0)
-  {
-    log_error("Failed to get the size of shader fragment file: %s", filename);
-    fclose(file);
-    return GL_FALSE;
-  }
-
-  filesize = ftell(file);
-  rewind(file);
-
-  _buffer = (char *)calloc(filesize + 1, sizeof(char));
-  if (!_buffer)
-  {
-    log_error("Out of memory for shader fragment file: %s", filename);
-    fclose(file);
-    return GL_FALSE;
-  }
-
-  bytes_read = fread(_buffer, 1, filesize, file);
-  if (bytes_read != filesize)
-  {
-    log_error("Failed to read shader fragment file: %s", filename);
-    fclose(file);
-    return GL_FALSE;
-  }
-
-  _buffer[filesize] = '\0';
-  (*buffer) = _buffer;
-
-  fclose(file);
-
-  return GL_TRUE;
-}
 
 GLuint shader_compile(GLenum shader_type, ShaderFragment *fragments,
                       GLuint count)
@@ -76,7 +52,7 @@ GLuint shader_compile(GLenum shader_type, ShaderFragment *fragments,
   shaders = (char **)calloc(count, sizeof(char *));
   for (i = 0; i < count; i++)
   {
-    const char *code = shader_load(fragments[i]);
+    const char *code = shader_fragment_load(fragments[i]);
     shaders[i] = (char *)calloc(strlen(code),sizeof(char));
     strcpy(shaders[i], code);
   }
@@ -94,7 +70,7 @@ GLuint shader_compile(GLenum shader_type, ShaderFragment *fragments,
     char info_log[512] = {0};
     glGetShaderInfoLog(shader, 512, NULL, info_log);
     log_error("Failed to compile %s shader: %s",
-              ((shader_type == GL_VERTEX_SHADER) ? "vertex" : "fragment"),
+              SHADER_FRAGMENT_TYPE_STR[shader_type],
               info_log);
   }
 
@@ -114,87 +90,12 @@ GLint shader_get_uniform_loc(GLuint shader, const char *name)
 
 // Public functions
 
-const char * shader_load(ShaderFragment shader)
-{
-  static const char *SHADER_FILES[SHADER_COUNT] =
-  {
-#ifdef _WIN32
-    "data\\vertex-default.frag",
-    "data\\fragment-default.frag"
-#else // POSIX
-    "data/vertex-default.frag",
-    "data/fragment-default.frag"
-#endif // _WIN32 - POSIX
-  };
-
-  if (shader < 0 || SHADER_COUNT <= shader)
-  {
-    log_error("Tried to load an invalid shader");
-    return NULL;
-  }
-  
-  if (!SHADERS_MEM)
-    SHADERS_MEM = (char **)calloc(SHADER_COUNT, sizeof(char *));
-  if (!SHADERS_MEM)
-  {
-    log_error("Out of memory for shader data array!");
-    return NULL;
-  }
-
-  if (SHADERS_MEM[shader])
-    return SHADERS_MEM[shader];
-
-  if (read_file(&(SHADERS_MEM[shader]), SHADER_FILES[shader]))
-    return SHADERS_MEM[shader];
-  
-  return NULL;
-}
-
-const char * shader_reload(ShaderFragment shader)
-{
-  if (0 <= shader && shader < SHADER_COUNT &&
-      SHADERS_MEM && SHADERS_MEM[shader])
-    shader_unload(shader);
-  
-  return shader_load(shader);
-}
-
-void shader_unload(ShaderFragment shader)
-{
-  if (SHADERS_MEM && SHADERS_MEM[shader])
-  {
-    char *shader_tmp = SHADERS_MEM[shader];
-    SHADERS_MEM[shader] = NULL;
-    free(shader_tmp);
-  }
-}
-
-void shader_unload_all()
-{
-  if (SHADERS_MEM)
-  {
-    char **mem_tmp = NULL;
-    int i = 0;
-    for (i = 0; i < SHADER_COUNT; i++)
-    {
-      if (SHADERS_MEM[i])
-      {
-        char *shader_tmp = SHADERS_MEM[i];
-        SHADERS_MEM[i] = NULL;
-        free(shader_tmp);
-      }
-    }
-    mem_tmp = SHADERS_MEM;
-    SHADERS_MEM = NULL;
-    free(mem_tmp);
-  }
-}
-
 Shader * shader_create(ShaderFragment *vertices, GLuint vertex_count,
                        ShaderFragment *fragments, GLuint fragment_count)
 {
   GLuint vertex = 0, fragment = 0;
   GLint success = 0;
+  GLuint i = 0;
   Shader *shader = NULL;
 
   vertex = shader_compile(GL_VERTEX_SHADER, vertices, vertex_count);
@@ -214,6 +115,13 @@ Shader * shader_create(ShaderFragment *vertices, GLuint vertex_count,
 
   shader = (Shader *)calloc(1, sizeof(Shader));
   shader->id = glCreateProgram();
+  for (i = 0; i < vertex_count; i++)
+    shader->vertex_shaders[i] = vertices[i];
+  shader->vertex_shader_count = vertex_count;
+  for (i = 0; i < fragment_count; i++)
+    shader->fragment_shaders[i] = fragments[i];
+  shader->fragment_shader_count = fragment_count;
+
   glAttachShader(shader->id, vertex);
   glAttachShader(shader->id, fragment);
   glLinkProgram(shader->id);
@@ -254,6 +162,25 @@ void shader_set_integer(Shader *shader, const char *name, GLint value)
 void shader_set_float(Shader *shader, const char *name, GLfloat value)
 {
   glUniform1f(shader_get_uniform_loc(shader->id, name), value);
+}
+
+void shader_refresh(Shader *shader)
+{
+  GLuint i = 0;
+  Shader *tmp = NULL;
+  log_debug("Refreshing shader program.");
+
+  for (i = 0; i < shader->vertex_shader_count; i++)
+    shader_fragment_unload(shader->vertex_shaders[i]);
+  for (i = 0; i < shader->fragment_shader_count; i++)
+    shader_fragment_unload(shader->fragment_shaders[i]);
+
+  tmp =
+    shader_create(shader->vertex_shaders, shader->vertex_shader_count,
+                  shader->fragment_shaders, shader->fragment_shader_count);
+
+  shader->id = tmp->id;
+  free(tmp);
 }
 
 void shader_use(Shader *shader)

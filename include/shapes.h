@@ -4,8 +4,6 @@
 #include <common.h>
 #include <shaders.h>
 
-#define SHAPE_MAX_FRAGMENTS (128)
-
 typedef enum shapes_e
 {
   SHAPE_TRIANGLE = 0,
@@ -15,10 +13,6 @@ typedef enum shapes_e
 typedef struct shape_data_t
 {
   Shape type;
-  ShaderFragment vertex_shaders[SHAPE_MAX_FRAGMENTS];
-  GLsizei vertex_shader_count;
-  ShaderFragment fragment_shaders[SHAPE_MAX_FRAGMENTS];
-  GLsizei fragment_shader_count;
   Shader *shader_program;
   GLuint vertex_array;
   GLuint element_buffer;

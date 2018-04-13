@@ -4,6 +4,11 @@
 
 // Private constants
 
+/**
+ * @brief Shape's name as a string.
+ * 
+ * The order has to match Shape enum.
+ */
 static const char *SHAPE_TYPE_STR[] =
 {
   "triangle",
@@ -11,27 +16,9 @@ static const char *SHAPE_TYPE_STR[] =
 };
 
 // Private headers
-
-static Shader * shader_program(ShapeData *data);
 static GLboolean shape_create(Shape, ShapeData *, GLenum);
 
 // Private functions
-
-Shader * shader_program(ShapeData *data)
-{
-  switch (data->type)
-  {
-  case SHAPE_TRIANGLE:
-  case SHAPE_SQUARE:
-    return shader_create(data->vertex_shaders, data->vertex_shader_count,
-                         data->fragment_shaders, data->fragment_shader_count);
-    break;
-  default:
-    log_error("Invalid shape");
-    break;
-  }
-  return NULL;
-}
 
 GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
 {
@@ -39,6 +26,10 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
   const GLfloat *vertices = NULL;
   const GLuint *indices = NULL;
   const GLfloat *tex_coords = NULL;
+
+  ShaderFragment vertex_shader = SHADER_DEFAULT_VERTEX;
+  ShaderFragment fragment_shader = SHADER_DEFAULT_FRAGMENT;
+
   if (!data)
   {
     log_error("Must provide proper shape data container");
@@ -46,11 +37,8 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
   }
 
   data->type = shape;
-  data->vertex_shaders[0] = SHADER_DEFAULT_VERTEX;
-  data->vertex_shader_count = 1;
-  data->fragment_shaders[0] = SHADER_DEFAULT_FRAGMENT;
-  data->fragment_shader_count = 1;
-  data->shader_program = shader_program(data);
+  data->shader_program =
+    shader_create(&vertex_shader, 1, &fragment_shader, 1);
 
   if (!data->shader_program)
   {
@@ -252,22 +240,6 @@ void shape_delete(ShapeData *data)
 
 void shape_refresh(ShapeData *data)
 {
-  if (data)
-  {
-    GLsizei i = 0;
-
-    log_debug("Refreshing %s shape.", SHAPE_TYPE_STR[data->type]);
-    
-    if (data->shader_program)
-    {
-      Shader *tmp = data->shader_program;
-      data->shader_program = NULL;
-      free(tmp);
-    }
-    for (i = 0; i < data->vertex_shader_count; i++)
-      shader_reload(data->vertex_shaders[i]);
-    for (i = 0; i < data->fragment_shader_count; i++)
-      shader_reload(data->fragment_shaders[i]);
-    data->shader_program = shader_program(data);
-  }
+  if (data && data->shader_program)
+    shader_refresh(data->shader_program);
 }

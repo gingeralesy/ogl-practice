@@ -2,43 +2,12 @@
 #define SHADERS_H
 
 #include <common.h>
-
-/**
- * @brief Enumeration for identifying every shader used.
- */
-typedef enum shader_fragment_e
-{
-  SHADER_DEFAULT_VERTEX = 0,
-  SHADER_DEFAULT_FRAGMENT,
-  SHADER_COUNT
-} ShaderFragment;
+#include <shader-fragments.h>
 
 /**
  * @brief Container for shader ID in GPU memory.
  */
 typedef struct shader_t Shader;
-
-/**
- * @brief Loads the wanted shader from a fragment file.
- * @param shader enumeration id value for the shader
- * @return the entire shader fragment as a string
- */
-const char * shader_load(ShaderFragment shader);
-/**
- * @brief Reloads the wanted shader from a fragment file.
- * @param shader enumeration id value for the shader
- * @return the entire shader fragment as a string
- */
-const char * shader_reload(ShaderFragment shader);
-/**
- * @brief Unloads a shader fragment and removes it from memory.
- * @param shader enumeration id value for the shader
- */
-void shader_unload(ShaderFragment shader);
-/**
- * @brief Unloads every shader fragment and removes them from memory.
- */
-void shader_unload_all(void);
 
 /**
  * @brief Creates a shader program in memory and returns a shader program.
@@ -77,6 +46,11 @@ void shader_set_integer(Shader *shader, const char *name, GLint value);
  * @param value value to set it to
  */
 void shader_set_float(Shader *shader, const char *name, GLfloat value);
+/**
+ * @brief Refreshes the shader program from the fragments.
+ * @param shader shader program
+ */
+void shader_refresh(Shader *shader);
 /**
  * @brief Sets the shader program active in the GPU
  * @param shader shader program
