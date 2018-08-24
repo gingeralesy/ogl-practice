@@ -42,20 +42,29 @@ $(OUTFILE): $(BDIR) $(ODDIR) objects
 tags: $(HEADERS) $(SOURCES)
 	@ctags -e $^
 
+doc: $(HEADERS) $(SOURCES)
+	@doxygen ogl-practice.dox
+
 $(OBJECTS): $(ODIR)/%.o : $(SDIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo " *** Compiled "$<" successfully!"
 
+objects: $(ODIR) $(OBJECTS)
+	@echo " *** Compilation complete!"
+
 $(ODIR):
 	@$(MKDIR_P) $(ODIR)
 
-objects: $(ODIR) $(OBJECTS)
-	@echo " *** Compilation complete!"
+$(LDIR):
+	@$(MKDIR_P) $(LDIR)
 
 $(BDIR):
 	@$(MKDIR_P) $(BDIR)
 
-$(ODDIR): $(BDIR)
+$(DDIR):
+	@$(MKDIR_P) $(DDIR)
+
+$(ODDIR): $(BDIR) $(DDIR)
 	@$(CP) $(DDIR) $(BDIR)
 
 .PHONY: clean
@@ -79,5 +88,8 @@ ifneq ($(wildcard $(BDIR)/.),)
 endif
 	@echo " *** Executable removed!"
 
+.PHONY: dirs
+dirs: $(ODIR) $(LDIR) $(BDIR) $(DDIR)
+
 .PHONY: all
-all: remove $(OUTFILE)
+all: remove dirs $(OUTFILE)
