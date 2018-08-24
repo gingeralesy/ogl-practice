@@ -8,37 +8,41 @@
  */
 typedef enum shader_fragment_e
 {
-  SHADER_DEFAULT_VERTEX = 0,
-  SHADER_DEFAULT_FRAGMENT,
-  SHADER_FRAGMENT_COUNT
+ SHADER_NONE = 0x00,
+ SHADER_DEFAULT = 0x01,
+ SHADER_ID_MASK = 0xfff,
+
+ SHADER_TYPE_VERTEX = 0x1000,
+ SHADER_TYPE_FRAGMENT = 0x2000,
+ SHADER_TYPE_MASK = 0xf000,
+
+ SHADER_INFO_MASK = 0xffff
 } ShaderFragment;
 
-/**
- * @brief Shader fragment name as a string.
- * 
- * The order has to match ShaderFragment enum.
- */
-static const char *SHADER_FRAGMENT_TYPE_STR[] =
-{
-  "vertex",
-  "fragment"
-};
+#define VERTEX_SHADER_STR ("vertex") //!< vertex shadder name as a string
+#define FRAGMENT_SHADER_STR ("fragment") //!< fragmentshadder name as a string
 
 /**
  * @brief Loads the wanted shader from a fragment file.
- * @param shader enumeration id value for the shader
+ * @param shader id and type value for the shader
  * @return the entire shader fragment as a string
  */
 const char * shader_fragment_load(ShaderFragment shader);
 /**
  * @brief Reloads the wanted shader from a fragment file.
- * @param shader enumeration id value for the shader
+ * @param shader id and type value for the shader
  * @return the entire shader fragment as a string
  */
 const char * shader_fragment_reload(ShaderFragment shader);
 /**
+ * @brief Converts a ShaderFragment to a GL shader type
+ * @param shader id and type value for the shader
+ * @return GL shader type
+ */
+GLenum shader_fragment_type(ShaderFragment shader);
+/**
  * @brief Unloads a shader fragment and removes it from memory.
- * @param shader enumeration id value for the shader
+ * @param shader id and type value for the shader
  */
 void shader_fragment_unload(ShaderFragment shader);
 /**

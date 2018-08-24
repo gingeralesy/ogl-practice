@@ -5,7 +5,7 @@
 /**
  * @brief Total number of fragments supported by a shader program.
  */
-#define SHADER_MAX_FRAGMENTS (128)
+#define SHADER_MAX_FRAGMENTS (16)
 
 // Private structs
 
@@ -15,23 +15,21 @@
 typedef struct shader_t
 {
   GLuint id;                                             /**< Shader program ID from OpenGL */
-  ShaderFragment vertex_shaders[SHADER_MAX_FRAGMENTS];   /**< Vertex shaders */
   GLuint vertex_shader_count;                            /**< Number of vertex shaders */
-  ShaderFragment fragment_shaders[SHADER_MAX_FRAGMENTS]; /**< Fragment shaders */
   GLuint fragment_shader_count;                          /**< Number of fragment shaders */
+  ShaderFragment vertex_shaders[SHADER_MAX_FRAGMENTS];   /**< Vertex shaders */
+  ShaderFragment fragment_shaders[SHADER_MAX_FRAGMENTS]; /**< Fragment shaders */
 } Shader;
 
 // Private headers
 
 /**
  * @brief Compiles a shader in the GPU
- * @param shader_type shader type (vertex or fragment)
  * @param fragments shader fragments
  * @param count number of shader fragments
  * @return shader ID
  */
-static GLuint shader_compile(GLenum shader_type,
-                             ShaderFragment *fragments,
+static GLuint shader_compile(ShaderFragment *fragments,
                              GLuint count);
 /**
  * @brief Get the location of the uniform in the shader.
@@ -43,18 +41,79 @@ static GLint shader_get_uniform_loc(GLuint shader, const char *name);
 
 // Private functions
 
-GLuint shader_compile(GLenum shader_type, ShaderFragment *fragments,
-                      GLuint count)
+GLuint shader_compile(ShaderFragment *fragments, GLuint count)
 {
   GLint success = 0;
   GLuint shader = 0, i = 0;
+  GLenum shader_type = 0;
   char **shaders = NULL;
+
+  if (count == 0)
+  {
+    log_error("Nothing to compile!");
+    return 0;
+  }
+
+  shader_type = shader_fragment_type(fragments[0]);
+  if (shader_type == 0)
+  {
+    log_error("Missing shader type info from '%x'", fragments[0]);
+    return 0;
+  }
+
   shaders = (char **)calloc(count, sizeof(char *));
+  if (shaders == NULL)
+  {
+    log_error("Out of memory for shader data array.");
+    return 0;
+  }
+
   for (i = 0; i < count; i++)
   {
-    const char *code = shader_fragment_load(fragments[i]);
-    shaders[i] = (char *)calloc(strlen(code),sizeof(char));
-    strcpy(shaders[i], code);
+    GLenum type = 0;
+    const char *code = NULL;
+
+    type = shader_fragment_type(fragments[i]);
+    if (type == 0)
+    {
+      log_error("Missing shader type info from '%x'", fragments[i]);
+      shader_type = 0;
+      break;
+    }
+
+    if (shader_type == type)
+    {
+      code = shader_fragment_load(fragments[i]);
+      if (code != NULL)
+      {
+        shaders[i] = (char *)calloc(strlen(code),sizeof(char));
+        strcpy(shaders[i], code);
+      }
+      else
+      {
+        log_error("Out of memory for shader data.");
+      }
+    }
+    else
+    {
+      log_error("Shader type mismatch!");
+    }
+
+    if (code == NULL)
+    {
+      GLuint j = 0;
+      char *tmp = NULL;
+
+      for (j = 0; j < i; j++)
+      {
+        tmp = shaders[i];
+        shaders[i] = NULL;
+        free(tmp);
+      }
+      free(shaders);
+      
+      return 0;
+    }
   }
 
   shader = glCreateShader(shader_type);
@@ -70,10 +129,10 @@ GLuint shader_compile(GLenum shader_type, ShaderFragment *fragments,
     char info_log[512] = {0};
     glGetShaderInfoLog(shader, 512, NULL, info_log);
     log_error("Failed to compile %s shader: %s",
-              SHADER_FRAGMENT_TYPE_STR[shader_type],
+              shader_type == GL_VERTEX_SHADER
+              ? VERTEX_SHADER_STR : FRAGMENT_SHADER_STR,
               info_log);
   }
-
   return shader;
 }
 
@@ -98,14 +157,14 @@ Shader * shader_create(ShaderFragment *vertices, GLuint vertex_count,
   GLuint i = 0;
   Shader *shader = NULL;
 
-  vertex = shader_compile(GL_VERTEX_SHADER, vertices, vertex_count);
+  vertex = shader_compile(vertices, vertex_count);
   if (!vertex)
   {
     glDeleteShader(vertex);
     return NULL;
   }
 
-  fragment = shader_compile(GL_FRAGMENT_SHADER, fragments, fragment_count);
+  fragment = shader_compile(fragments, fragment_count);
   if (!fragment)
   {
     glDeleteShader(vertex);

@@ -35,8 +35,8 @@ GLboolean shape_create(Shape shape, ShapeData *data, GLenum data_usage)
   const GLuint *indices = NULL;
   const GLfloat *tex_coords = NULL;
 
-  ShaderFragment vertex_shader = SHADER_DEFAULT_VERTEX;
-  ShaderFragment fragment_shader = SHADER_DEFAULT_FRAGMENT;
+  ShaderFragment vertex_shader = SHADER_DEFAULT | SHADER_TYPE_VERTEX;
+  ShaderFragment fragment_shader = SHADER_DEFAULT | SHADER_TYPE_FRAGMENT;
 
   if (!data)
   {
